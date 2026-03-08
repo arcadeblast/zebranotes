@@ -1,13 +1,240 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zebra Notes</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+    <style>
+        :root {
+            --zebra-black: #1a1a1a;
+            --zebra-white: #ffffff;
+            --zebra-gray: #f4f4f4;
+            --accent-color: #333;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #f9f9f9;
+            color: var(--zebra-black);
+            display: flex;
+            justify-content: center;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 1000px;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            border-bottom: 4px solid var(--zebra-black);
+            padding-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 3rem;
+            letter-spacing: -1px;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .puzzle-grid {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .puzzle-grid th, .puzzle-grid td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .puzzle-grid th {
+            background: var(--zebra-black);
+            color: var(--zebra-white);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+
+        .category-label {
+            font-weight: bold;
+            background: var(--zebra-gray);
+            width: 150px;
+        }
+
+        .cell-input {
+            width: 100%;
+            border: none;
+            padding: 8px;
+            font-size: 1rem;
+            outline: none;
+            background: transparent;
+            box-sizing: border-box;
+        }
+
+        .cell-input:focus {
+            background: #fffbe6;
+        }
+
+        .notes-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .notes-label {
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            border-left: 10px solid var(--zebra-black);
+            padding-left: 1rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 1rem;
+            border: 2px solid var(--zebra-black);
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+
+        .controls {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        button {
+            background: var(--zebra-black);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        .zebra-stripe:nth-child(even) {
+            background-color: #fafafa;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1>Zebra Notes</h1>
+        </header>
+
+        <main>
+            <table class="puzzle-grid">
+                <thead>
+                    <tr>
+                        <th class="category-label">Category</th>
+                        <th>House 1</th>
+                        <th>House 2</th>
+                        <th>House 3</th>
+                        <th>House 4</th>
+                        <th>House 5</th>
+                    </tr>
+                </thead>
+                <tbody id="grid-body">
+                    <!-- Rows will be injected by JavaScript -->
+                </tbody>
+            </table>
+
+            <section class="notes-section">
+                <label class="notes-label">Deductions & Clues</label>
+                <textarea id="notes-area" placeholder="Type your clues or deductions here..."></textarea>
+            </section>
+
+            <div class="controls">
+                <button id="reset-btn">Clear Everything</button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const CATEGORIES = ['Color', 'Nationality', 'Beverage', 'Smoke', 'Pet'];
+        const gridBody = document.getElementById('grid-body');
+        const notesArea = document.getElementById('notes-area');
+        const resetBtn = document.getElementById('reset-btn');
+
+        // Load data from localStorage
+        let gridData = JSON.parse(localStorage.getItem('zebra-notes-grid')) || {};
+        notesArea.value = localStorage.getItem('zebra-notes-text') || '';
+
+        // Initialize grid data if empty
+        CATEGORIES.forEach(cat => {
+            if (!gridData[cat]) {
+                gridData[cat] = ['', '', '', '', ''];
+            }
+        });
+
+        // Build the table
+        function renderGrid() {
+            gridBody.innerHTML = '';
+            CATEGORIES.forEach(cat => {
+                const tr = document.createElement('tr');
+                tr.className = 'zebra-stripe';
+                
+                const labelTd = document.createElement('td');
+                labelTd.className = 'category-label';
+                labelTd.textContent = cat;
+                tr.appendChild(labelTd);
+
+                for (let i = 0; i < 5; i++) {
+                    const td = document.createElement('td');
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'cell-input';
+                    input.placeholder = '...';
+                    input.value = gridData[cat][i];
+                    
+                    input.addEventListener('input', (e) => {
+                        gridData[cat][i] = e.target.value;
+                        localStorage.setItem('zebra-notes-grid', JSON.stringify(gridData));
+                    });
+
+                    td.appendChild(input);
+                    tr.appendChild(td);
+                }
+                gridBody.appendChild(tr);
+            });
+        }
+
+        // Save notes on input
+        notesArea.addEventListener('input', (e) => {
+            localStorage.setItem('zebra-notes-text', e.target.value);
+        });
+
+        // Reset functionality
+        resetBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to clear all notes?')) {
+                gridData = {};
+                CATEGORIES.forEach(cat => gridData[cat] = ['', '', '', '', '']);
+                notesArea.value = '';
+                localStorage.removeItem('zebra-notes-grid');
+                localStorage.removeItem('zebra-notes-text');
+                renderGrid();
+            }
+        });
+
+        renderGrid();
+    </script>
+</body>
 </html>
