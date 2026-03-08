@@ -5,14 +5,25 @@ const CATEGORIES = ['Color', 'Nationality', 'Beverage', 'Smoke', 'Pet']
 const HOUSES = [1, 2, 3, 4, 5]
 
 function App() {
-  const [grid, setGrid] = useState(() => {
+  const [grid, setGrid] = useState<Record<string, string[]>>(() => {
     const saved = localStorage.getItem('zebra-notes-grid')
-    if (saved) return JSON.parse(saved)
-    
     const initialGrid: Record<string, string[]> = {}
     CATEGORIES.forEach(cat => {
       initialGrid[cat] = new Array(5).fill('')
     })
+
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved)
+        // Ensure all categories exist in the parsed object
+        CATEGORIES.forEach(cat => {
+          if (!parsed[cat]) parsed[cat] = new Array(5).fill('')
+        })
+        return parsed
+      } catch (e) {
+        console.error('Failed to parse saved grid', e)
+      }
+    }
     return initialGrid
   })
 
@@ -29,19 +40,19 @@ function App() {
   }, [notes])
 
   const updateCell = (category: string, index: number, value: string) => {
-    setGrid((prev: any) => ({
+    setGrid((prev) => ({
       ...prev,
-      [category]: prev[category].map((v: string, i: number) => i === index ? value : v)
+      [category]: prev[category].map((v, i) => i === index ? value : v)
     }))
   }
 
   const resetAll = () => {
     if (window.confirm('Are you sure you want to clear all notes?')) {
-      const initialGrid: any = {}
+      const resetGrid: Record<string, string[]> = {}
       CATEGORIES.forEach(cat => {
-        initialGrid[cat] = new Array(5).fill('')
+        resetGrid[cat] = new Array(5).fill('')
       })
-      setGrid(initialGrid)
+      setGrid(resetGrid)
       setNotes('')
     }
   }
