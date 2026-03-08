@@ -129,14 +129,23 @@ function renderPuzzle() {
             const container = document.createElement('div');
             container.className = 'candidates-container';
 
+            const elimList = state.puzzleGrid[catIdx][houseIdx];
+            const activeIndices = cat.values
+                .map((v, i) => (v && v.trim() !== '' && !elimList.includes(i) ? i : -1))
+                .filter(i => i !== -1);
+
             cat.values.forEach((val, valIdx) => {
                 if (!val || val.trim() === '') return;
                 const span = document.createElement('span');
                 span.className = 'candidate';
                 span.textContent = val;
                 
-                const isEliminated = state.puzzleGrid[catIdx][houseIdx].includes(valIdx);
-                if (isEliminated) span.classList.add('eliminated');
+                const isEliminated = elimList.includes(valIdx);
+                if (isEliminated) {
+                    span.classList.add('eliminated');
+                } else if (activeIndices.length === 1) {
+                    span.classList.add('confirmed');
+                }
 
                 span.onclick = () => {
                     pushToHistory();
