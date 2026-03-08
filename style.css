@@ -107,6 +107,15 @@ textarea {
     justify-content: flex-end;
 }
 
+#reset-btn {
+    background: #d32f2f;
+    color: white;
+}
+
+#reset-btn:hover {
+    background: #b71c1c;
+}
+
 button {
     background: var(--zebra-black);
     color: white;
@@ -115,11 +124,11 @@ button {
     font-weight: bold;
     cursor: pointer;
     text-transform: uppercase;
-    transition: opacity 0.2s;
+    transition: background-color 0.2s, opacity 0.2s;
 }
 
 button:hover {
-    opacity: 0.8;
+    opacity: 0.9;
 }
 
 .zebra-stripe:nth-child(even) {
