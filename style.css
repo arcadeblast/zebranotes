@@ -109,14 +109,18 @@ h1 {
 
 .puzzle-grid th, .puzzle-grid td {
     border: 1px solid #ddd;
-    padding: 4px 2px; /* Very tight padding */
+    padding: 8px 2px; /* Increased vertical padding from 4px to 8px */
     text-align: center;
     vertical-align: top;
     word-wrap: break-word;
     overflow: hidden;
 }
 
-.puzzle-grid th {
+.zebra-stripe {
+    border-bottom: 2px solid #eee; /* Extra visual separation */
+}
+
+.zebra-stripe:nth-child(even) {
     background: var(--zebra-black);
     color: var(--zebra-white);
     text-transform: uppercase;
