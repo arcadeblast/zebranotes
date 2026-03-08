@@ -18,7 +18,7 @@ body {
     width: 100%;
     max-width: 1100px;
     margin: 0 auto;
-    padding: 0.5rem; /* Minimized for mobile */
+    padding: 0.5rem;
     box-sizing: border-box;
 }
 
@@ -96,35 +96,32 @@ h1 {
 /* PUZZLE STYLES */
 .puzzle-grid-wrapper {
     width: 100%;
-    overflow-x: hidden; /* No more horizontal scroll */
+    overflow-x: hidden;
     margin-bottom: 1rem;
 }
 
 .puzzle-grid {
     width: 100%;
-    table-layout: fixed; /* Force columns to be equal and fit */
+    table-layout: fixed;
     border-collapse: collapse;
     background: white;
 }
 
-.puzzle-grid th, .puzzle-grid td {
+.puzzle-grid td {
     border: 1px solid #ddd;
-    padding: 8px 2px; /* Increased vertical padding from 4px to 8px */
+    padding: 10px 2px; /* Breathing room between rows */
     text-align: center;
     vertical-align: top;
     word-wrap: break-word;
     overflow: hidden;
 }
 
-.zebra-stripe {
-    border-bottom: 2px solid #eee; /* Extra visual separation */
+.zebra-stripe:nth-child(even) {
+    background-color: #fcfcfc; /* Very subtle stripe */
 }
 
-.zebra-stripe:nth-child(even) {
-    background: var(--zebra-black);
-    color: var(--zebra-white);
-    text-transform: uppercase;
-    font-size: 0.65rem;
+.zebra-stripe {
+    border-bottom: 1px solid #eee;
 }
 
 .candidates-container {
@@ -134,7 +131,7 @@ h1 {
 }
 
 .candidate {
-    font-size: 0.65rem; /* Tiny font to fit */
+    font-size: 0.65rem;
     padding: 4px 1px;
     background: #f0f0f0;
     cursor: pointer;
@@ -143,6 +140,7 @@ h1 {
     border: 1px solid transparent;
     display: block;
     line-height: 1.1;
+    color: var(--zebra-black);
 }
 
 .candidate.eliminated {
@@ -153,9 +151,10 @@ h1 {
 }
 
 .candidate.confirmed {
-    background: #c8e6c9;
-    border-color: #4caf50;
+    background: #e8f5e9; /* Soft, non-obnoxious green */
+    border-color: #a5d6a7;
     font-weight: bold;
+    color: #2e7d32;
 }
 
 /* Desktop refinements */
@@ -166,15 +165,12 @@ h1 {
     h1 {
         font-size: 3rem;
     }
-    .puzzle-grid th {
-        font-size: 0.8rem;
-    }
     .candidate {
         font-size: 0.75rem;
         padding: 4px 6px;
     }
-    .puzzle-grid th, .puzzle-grid td {
-        padding: 8px;
+    .puzzle-grid td {
+        padding: 12px 8px;
     }
 }
 
@@ -228,8 +224,4 @@ button {
 #reset-btn {
     background: var(--accent-red);
     color: white;
-}
-
-.zebra-stripe:nth-child(even) {
-    background-color: #fafafa;
 }
