@@ -13,7 +13,7 @@ let state = {
         { name: 'Category 6', values: ['', '', '', '', ''] }
     ],
     puzzleGrid: Array(MAX_CATEGORIES).fill(0).map(() => Array(MAX_POSITIONS).fill(0).map(() => [])),
-    clues: [],
+    clues: [], // Stores { text, rel, vals, itemData: [] }
     currentView: 'setup',
     history: [],
     redoStack: []
@@ -21,15 +21,19 @@ let state = {
 
 // --- Storage ---
 function loadState() {
-    const saved = localStorage.getItem('zebra-puzzle-state-v6');
+    const saved = localStorage.getItem('zebra-puzzle-state-v7');
     if (saved) {
         state = JSON.parse(saved);
         if (!state.clues) state.clues = [];
+        // Migration: If clues are strings, clear them or wrap them (better to just clear for this prototype upgrade)
+        if (state.clues.length > 0 && typeof state.clues[0] === 'string') {
+            state.clues = [];
+        }
     }
 }
 
 function saveState() {
-    localStorage.setItem('zebra-puzzle-state-v6', JSON.stringify(state));
+    localStorage.setItem('zebra-puzzle-state-v7', JSON.stringify(state));
 }
 
 // --- DOM Elements ---
@@ -119,7 +123,7 @@ function getAllItems() {
     state.categories.forEach((cat, cIdx) => {
         cat.values.forEach((val, vIdx) => {
             if (val && val.trim()) {
-                items.push({ text: val });
+                items.push({ text: val, catIdx: cIdx, valIdx: vIdx });
             }
         });
     });
@@ -144,7 +148,7 @@ function renderClueBuilder() {
         } else {
             allItems.forEach(item => {
                 const opt = document.createElement('option');
-                opt.value = item.text;
+                opt.value = JSON.stringify(item);
                 opt.textContent = item.text;
                 select.appendChild(opt);
             });
@@ -158,20 +162,33 @@ relSelect.onchange = renderClueBuilder;
 addClueBtn.onclick = () => {
     const rel = relSelect.value;
     const selects = itemSelectsContainer.querySelectorAll('select');
-    const vals = Array.from(selects).map(s => s.value);
+    const rawVals = Array.from(selects).map(s => s.value);
     
     let text = '';
-    if (rel === 'same') text = `${vals[0]} goes with ${vals[1]}`;
-    else if (rel === 'next') text = `${vals[0]} is next to ${vals[1]}`;
-    else if (rel === 'left-of') text = `${vals[0]} is to the left of ${vals[1]}`;
-    else if (rel === 'right-of') text = `${vals[0]} is to the right of ${vals[1]}`;
-    else if (rel === 'between') text = `${vals[0]} is between ${vals[1]} and ${vals[2]}`;
-    else if (rel === 'position') text = `${vals[1]} is in Position ${vals[0]}`;
-    else if (rel === 'left-end') text = `${vals[0]} is at the left end`;
-    else if (rel === 'right-end') text = `${vals[0]} is at the right end`;
-    else if (rel === 'ends') text = `${vals[0]} is at one of the ends`;
+    let itemData = [];
 
-    state.clues.push(text);
+    // Parse item data
+    rawVals.forEach((v, idx) => {
+        if (rel === 'position' && idx === 0) {
+            itemData.push({ type: 'house', val: parseInt(v) });
+        } else {
+            itemData.push(JSON.parse(v));
+        }
+    });
+
+    const vNames = itemData.map(d => d.text || d.val);
+
+    if (rel === 'same') text = `${vNames[0]} goes with ${vNames[1]}`;
+    else if (rel === 'next') text = `${vNames[0]} is next to ${vNames[1]}`;
+    else if (rel === 'left-of') text = `${vNames[0]} is to the left of ${vNames[1]}`;
+    else if (rel === 'right-of') text = `${vNames[0]} is to the right of ${vNames[1]}`;
+    else if (rel === 'between') text = `${vNames[0]} is between ${vNames[1]} and ${vNames[2]}`;
+    else if (rel === 'position') text = `${vNames[1]} is in Position ${vNames[0]}`;
+    else if (rel === 'left-end') text = `${vNames[0]} is at the left end`;
+    else if (rel === 'right-end') text = `${vNames[0]} is at the right end`;
+    else if (rel === 'ends') text = `${vNames[0]} is at one of the ends`;
+
+    state.clues.push({ text, rel, itemData });
     saveState();
     renderCluesList();
 };
@@ -180,7 +197,7 @@ function renderCluesList() {
     cluesList.innerHTML = '';
     state.clues.forEach((clue, idx) => {
         const li = document.createElement('li');
-        li.textContent = clue;
+        li.textContent = clue.text;
         const del = document.createElement('button');
         del.className = 'del-clue';
         del.textContent = 'X';
@@ -194,6 +211,44 @@ function renderCluesList() {
     });
 }
 
+// --- Clue Satisfaction Logic ---
+function getConfirmedPos(catIdx, valIdx) {
+    for (let h = 0; h < MAX_POSITIONS; h++) {
+        const elimList = state.puzzleGrid[catIdx][h];
+        const catVals = state.categories[catIdx].values;
+        const activeCount = catVals.filter((v, i) => v && v.trim() !== '' && !elimList.includes(i)).length;
+        if (activeCount === 1 && !elimList.includes(valIdx)) {
+            return h;
+        }
+    }
+    return null;
+}
+
+function checkClueSatisfied(clue) {
+    const positions = clue.itemData.map(d => {
+        if (d.type === 'house') return d.val - 1; // 0-indexed
+        return getConfirmedPos(d.catIdx, d.valIdx);
+    });
+
+    // If any required position is missing, it's not satisfied
+    if (positions.some(p => p === null)) return false;
+
+    const [p1, p2, p3] = positions;
+
+    switch (clue.rel) {
+        case 'same': return p1 === p2;
+        case 'next': return Math.abs(p1 - p2) === 1;
+        case 'left-of': return p1 === p2 - 1;
+        case 'right-of': return p1 === p2 + 1;
+        case 'between': return (p2 === p1 - 1 && p3 === p1 + 1) || (p3 === p1 - 1 && p2 === p1 + 1);
+        case 'position': return p1 === p2; // p1 is target pos, p2 is item pos
+        case 'left-end': return p1 === 0;
+        case 'right-end': return p1 === 4;
+        case 'ends': return p1 === 0 || p1 === 4;
+        default: return false;
+    }
+}
+
 function renderSolveClues() {
     solveCluesDisplay.innerHTML = '';
     if (state.clues.length === 0) {
@@ -203,7 +258,10 @@ function renderSolveClues() {
     state.clues.forEach(clue => {
         const div = document.createElement('div');
         div.className = 'solve-clue-item';
-        div.textContent = clue;
+        div.textContent = clue.text;
+        if (checkClueSatisfied(clue)) {
+            div.classList.add('clue-satisfied');
+        }
         solveCluesDisplay.appendChild(div);
     });
 }
@@ -220,7 +278,10 @@ function renderPuzzle() {
             const container = document.createElement('div');
             container.className = 'candidates-container';
             const elimList = state.puzzleGrid[catIdx][h];
-            const activeIndices = cat.values.map((v, i) => (v && v.trim() !== '' && !elimList.includes(i) ? i : -1)).filter(i => i !== -1);
+            
+            const activeIndices = cat.values
+                .map((v, i) => (v && v.trim() !== '' && !elimList.includes(i) ? i : -1))
+                .filter(i => i !== -1);
 
             cat.values.forEach((val, vIdx) => {
                 if (!val || val.trim() === '') return;
@@ -235,6 +296,7 @@ function renderPuzzle() {
                     else state.puzzleGrid[catIdx][h].push(vIdx);
                     saveState();
                     renderPuzzle();
+                    renderSolveClues(); // Update clue highlights too
                 };
                 container.appendChild(span);
             });
@@ -264,6 +326,7 @@ document.getElementById('reset-btn').onclick = () => {
         state.puzzleGrid = Array(MAX_CATEGORIES).fill(0).map(() => Array(MAX_POSITIONS).fill(0).map(() => []));
         saveState();
         renderPuzzle();
+        renderSolveClues();
     }
 };
 
@@ -273,6 +336,7 @@ document.getElementById('undo-btn').onclick = () => {
         state.puzzleGrid = state.history.pop();
         saveState();
         renderPuzzle();
+        renderSolveClues();
     }
 };
 
@@ -282,6 +346,7 @@ document.getElementById('redo-btn').onclick = () => {
         state.puzzleGrid = state.redoStack.pop();
         saveState();
         renderPuzzle();
+        renderSolveClues();
     }
 };
 

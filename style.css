@@ -140,6 +140,13 @@ h1 {
     padding: 0.5rem;
     border-bottom: 1px solid #eee;
     font-size: 0.9rem;
+    transition: background-color 0.3s;
+}
+
+.solve-clue-item.clue-satisfied {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border-left: 4px solid #4caf50;
 }
 
 .solve-clue-item:last-child {
