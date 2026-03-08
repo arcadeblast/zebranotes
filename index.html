@@ -10,9 +10,30 @@
     <div class="app-container">
         <header class="header">
             <h1>Zebra Notes</h1>
+            <nav class="view-switch">
+                <button id="show-setup">1. Setup Categories</button>
+                <button id="show-puzzle">2. Solve Puzzle</button>
+            </nav>
         </header>
 
-        <main>
+        <!-- SETUP VIEW -->
+        <main id="setup-view" class="view">
+            <section class="setup-instructions">
+                <h2>Configure your Puzzle</h2>
+                <p>Enter 5 categories and their 5 possible values each.</p>
+            </section>
+            
+            <div id="category-inputs-container">
+                <!-- Category blocks will be injected here -->
+            </div>
+
+            <div class="controls setup-controls">
+                <button id="save-setup" class="primary-btn">Save & Start Solving</button>
+            </div>
+        </main>
+
+        <!-- PUZZLE VIEW -->
+        <main id="puzzle-view" class="view hidden">
             <table class="puzzle-grid">
                 <thead>
                     <tr>
@@ -35,7 +56,7 @@
             </section>
 
             <div class="controls">
-                <button id="reset-btn">Clear Everything</button>
+                <button id="reset-btn">Clear All Progress</button>
             </div>
         </main>
     </div>
