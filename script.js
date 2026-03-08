@@ -108,7 +108,7 @@ const RELATIONS = {
     'left-of': { label: 'Immediately to the left of', items: 2 },
     'right-of': { label: 'Immediately to the right of', items: 2 },
     between: { label: 'Is between', items: 3 },
-    position: { label: 'Is in Position #', items: 1, type: 'pos' },
+    position: { label: 'Is in Position #', items: 2, type: 'pos' },
     'left-end': { label: 'Is at the left end', items: 1 },
     'right-end': { label: 'Is at the right end', items: 1 },
     ends: { label: 'Is at one of the ends', items: 1 }
