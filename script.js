@@ -1,7 +1,7 @@
 // --- State Management ---
 const MAX_CATEGORIES = 6;
 const MAX_VALUES = 5;
-const MAX_HOUSES = 5;
+const MAX_POSITIONS = 5;
 
 let state = {
     categories: [
@@ -12,7 +12,7 @@ let state = {
         { name: 'Category 5', values: ['Dog', 'Snails', 'Fox', 'Horse', 'Zebra'] },
         { name: 'Category 6', values: ['', '', '', '', ''] }
     ],
-    puzzleGrid: Array(MAX_CATEGORIES).fill(0).map(() => Array(MAX_HOUSES).fill(0).map(() => [])),
+    puzzleGrid: Array(MAX_CATEGORIES).fill(0).map(() => Array(MAX_POSITIONS).fill(0).map(() => [])),
     clues: [],
     currentView: 'setup',
     history: [],
@@ -103,12 +103,12 @@ function renderSetup() {
 
 // --- Clue Builder Logic ---
 const RELATIONS = {
-    same: { label: 'Goes with / Same house', items: 2 },
+    same: { label: 'Goes with / Same position', items: 2 },
     next: { label: 'Next to', items: 2 },
     'left-of': { label: 'Immediately to the left of', items: 2 },
     'right-of': { label: 'Immediately to the right of', items: 2 },
     between: { label: 'Is between', items: 3 },
-    position: { label: 'Is in House #', items: 1, type: 'house' },
+    position: { label: 'Is in Position #', items: 1, type: 'pos' },
     'left-end': { label: 'Is at the left end', items: 1 },
     'right-end': { label: 'Is at the right end', items: 1 },
     ends: { label: 'Is at one of the ends', items: 1 }
@@ -134,11 +134,11 @@ function renderClueBuilder() {
 
     for (let i = 0; i < config.items; i++) {
         const select = document.createElement('select');
-        if (config.type === 'house' && i === 0) {
+        if (config.type === 'pos' && i === 0) {
             for (let h = 1; h <= 5; h++) {
                 const opt = document.createElement('option');
                 opt.value = h;
-                opt.textContent = `House ${h}`;
+                opt.textContent = `Position ${h}`;
                 select.appendChild(opt);
             }
         } else {
@@ -166,7 +166,7 @@ addClueBtn.onclick = () => {
     else if (rel === 'left-of') text = `${vals[0]} is to the left of ${vals[1]}`;
     else if (rel === 'right-of') text = `${vals[0]} is to the right of ${vals[1]}`;
     else if (rel === 'between') text = `${vals[0]} is between ${vals[1]} and ${vals[2]}`;
-    else if (rel === 'position') text = `${vals[1]} is in House ${vals[0]}`;
+    else if (rel === 'position') text = `${vals[1]} is in Position ${vals[0]}`;
     else if (rel === 'left-end') text = `${vals[0]} is at the left end`;
     else if (rel === 'right-end') text = `${vals[0]} is at the right end`;
     else if (rel === 'ends') text = `${vals[0]} is at one of the ends`;
@@ -215,7 +215,7 @@ function renderPuzzle() {
         if (!cat.values.some(v => v && v.trim())) return;
         const tr = document.createElement('tr');
         tr.className = 'zebra-stripe';
-        for (let h = 0; h < MAX_HOUSES; h++) {
+        for (let h = 0; h < MAX_POSITIONS; h++) {
             const td = document.createElement('td');
             const container = document.createElement('div');
             container.className = 'candidates-container';
@@ -261,7 +261,7 @@ document.getElementById('start-solving-btn').onclick = () => switchView('solve')
 document.getElementById('reset-btn').onclick = () => {
     if (confirm('Reset grid? (Setup and Clues are kept)')) {
         pushToHistory();
-        state.puzzleGrid = Array(MAX_CATEGORIES).fill(0).map(() => Array(MAX_HOUSES).fill(0).map(() => []));
+        state.puzzleGrid = Array(MAX_CATEGORIES).fill(0).map(() => Array(MAX_POSITIONS).fill(0).map(() => []));
         saveState();
         renderPuzzle();
     }
