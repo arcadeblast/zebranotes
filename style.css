@@ -18,19 +18,19 @@ body {
     width: 100%;
     max-width: 1100px;
     margin: 0 auto;
-    padding: 1rem; /* Reduced for mobile */
+    padding: 0.5rem; /* Minimized for mobile */
     box-sizing: border-box;
 }
 
 .header {
     text-align: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     border-bottom: 4px solid var(--zebra-black);
-    padding-bottom: 1rem;
+    padding-bottom: 0.5rem;
 }
 
 h1 {
-    font-size: 2.2rem; /* Scaled down for mobile */
+    font-size: 1.8rem;
     letter-spacing: -1px;
     text-transform: uppercase;
     margin: 0;
@@ -39,16 +39,16 @@ h1 {
 .view-switch {
     display: flex;
     justify-content: center;
-    gap: 0.5rem;
-    margin-top: 1rem;
+    gap: 4px;
+    margin-top: 0.5rem;
 }
 
 .view-switch button {
     background: transparent;
     color: var(--zebra-black);
     border: 2px solid var(--zebra-black);
-    padding: 0.6rem 0.8rem;
-    flex: 1; /* Equal width buttons on mobile */
+    padding: 0.5rem;
+    flex: 1;
     font-size: 0.8rem;
 }
 
@@ -70,7 +70,7 @@ h1 {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 1rem;
-    margin-top: 1.5rem;
+    margin-top: 1rem;
 }
 
 .category-setup-block {
@@ -81,11 +81,11 @@ h1 {
 
 .category-setup-block input {
     width: 100%;
-    padding: 0.7rem; /* Larger inputs for touch */
-    margin-bottom: 0.5rem;
+    padding: 0.7rem;
+    margin-bottom: 0.4rem;
     border: 1px solid #ddd;
     box-sizing: border-box;
-    font-size: 1rem; /* Prevents iOS zoom on focus */
+    font-size: 1rem;
 }
 
 .cat-name-input {
@@ -96,70 +96,56 @@ h1 {
 /* PUZZLE STYLES */
 .puzzle-grid-wrapper {
     width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    margin-bottom: 1.5rem;
-    border: 1px solid #ddd;
+    overflow-x: hidden; /* No more horizontal scroll */
+    margin-bottom: 1rem;
 }
 
 .puzzle-grid {
     width: 100%;
-    min-width: 500px; /* Reduced since category column is gone */
+    table-layout: fixed; /* Force columns to be equal and fit */
     border-collapse: collapse;
     background: white;
 }
 
 .puzzle-grid th, .puzzle-grid td {
     border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
+    padding: 4px 2px; /* Very tight padding */
+    text-align: center;
     vertical-align: top;
+    word-wrap: break-word;
+    overflow: hidden;
 }
 
 .puzzle-grid th {
     background: var(--zebra-black);
     color: var(--zebra-white);
     text-transform: uppercase;
-    font-size: 0.75rem;
-    white-space: nowrap;
-}
-
-.category-label {
-    font-weight: bold;
-    background: var(--zebra-gray);
-    width: 100px;
-    position: sticky;
-    left: 0;
-    z-index: 10;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+    font-size: 0.65rem;
 }
 
 .candidates-container {
     display: flex;
-    flex-direction: column; /* Stacked on mobile for better touch targets */
-    gap: 4px;
+    flex-direction: column;
+    gap: 2px;
 }
 
 .candidate {
-    font-size: 0.85rem;
-    padding: 8px 10px; /* Larger hit area for fingers */
+    font-size: 0.65rem; /* Tiny font to fit */
+    padding: 4px 1px;
     background: #f0f0f0;
     cursor: pointer;
     user-select: none;
-    border-radius: 4px;
+    border-radius: 2px;
     border: 1px solid transparent;
-    text-align: center;
-}
-
-.candidate:hover {
-    background: #e0e0e0;
+    display: block;
+    line-height: 1.1;
 }
 
 .candidate.eliminated {
     text-decoration: line-through;
-    color: #bbb;
+    color: #ccc;
     background: transparent;
-    opacity: 0.6;
+    opacity: 0.4;
 }
 
 .candidate.confirmed {
@@ -176,46 +162,42 @@ h1 {
     h1 {
         font-size: 3rem;
     }
-    .candidates-container {
-        flex-direction: row;
-        flex-wrap: wrap;
+    .puzzle-grid th {
+        font-size: 0.8rem;
     }
     .candidate {
         font-size: 0.75rem;
         padding: 4px 6px;
     }
-    .view-switch button {
-        flex: none;
-        padding: 0.5rem 1rem;
-        font-size: 1rem;
+    .puzzle-grid th, .puzzle-grid td {
+        padding: 8px;
     }
 }
 
 /* NOTES & CONTROLS */
 .notes-label {
     font-weight: bold;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     text-transform: uppercase;
     border-left: 10px solid var(--zebra-black);
-    padding-left: 1rem;
+    padding-left: 0.8rem;
 }
 
 textarea {
     width: 100%;
-    height: 150px;
-    padding: 1rem;
+    height: 120px;
+    padding: 0.8rem;
     border: 2px solid var(--zebra-black);
     font-family: inherit;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
     box-sizing: border-box;
     font-size: 1rem;
 }
 
 .controls {
-    margin-top: 1rem;
+    margin-top: 0.8rem;
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 4px;
 }
 
 button {
@@ -223,9 +205,10 @@ button {
     cursor: pointer;
     text-transform: uppercase;
     transition: opacity 0.2s;
-    padding: 0.8rem 1.2rem;
+    padding: 0.6rem 0.4rem;
     border: none;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
+    flex: 1;
 }
 
 .primary-btn {
@@ -241,14 +224,6 @@ button {
 #reset-btn {
     background: var(--accent-red);
     color: white;
-    margin-left: auto; /* Reset always to the right */
-}
-
-@media (max-width: 480px) {
-    .controls button {
-        flex: 1;
-        min-width: 40%;
-    }
 }
 
 .zebra-stripe:nth-child(even) {
