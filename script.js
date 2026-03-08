@@ -24,7 +24,6 @@ function loadState() {
     const saved = localStorage.getItem('zebra-puzzle-state-v4');
     if (saved) {
         state = JSON.parse(saved);
-        // Ensure 6 categories
         while (state.categories.length < MAX_CATEGORIES) {
             state.categories.push({ name: '', values: Array(MAX_VALUES).fill('') });
         }
@@ -33,7 +32,6 @@ function loadState() {
 }
 
 function saveState() {
-    // Limit history and redo stacks for storage efficiency
     if (state.history.length > 50) state.history = state.history.slice(-50);
     if (state.redoStack.length > 50) state.redoStack = state.redoStack.slice(-50);
     localStorage.setItem('zebra-puzzle-state-v4', JSON.stringify(state));
@@ -42,7 +40,7 @@ function saveState() {
 function pushToHistory() {
     const snapshot = JSON.parse(JSON.stringify(state.puzzleGrid));
     state.history.push(snapshot);
-    state.redoStack = []; // Clear redo stack on new action
+    state.redoStack = []; 
 }
 
 // --- DOM Elements ---
@@ -52,7 +50,7 @@ const catInputsContainer = document.getElementById('category-inputs-container');
 const gridBody = document.getElementById('grid-body');
 const notesArea = document.getElementById('notes-area');
 const showSetupBtn = document.getElementById('show-setup');
-const showPuzzleBtn = document.getElementById('show-puzzle');
+const showSolveBtn = document.getElementById('show-solve'); // Updated ID
 const saveSetupBtn = document.getElementById('save-setup');
 const resetBtn = document.getElementById('reset-btn');
 const undoBtn = document.getElementById('undo-btn');
@@ -65,13 +63,13 @@ function switchView(viewName) {
         setupView.classList.remove('hidden');
         puzzleView.classList.add('hidden');
         showSetupBtn.classList.add('active');
-        showPuzzleBtn.classList.remove('active');
+        showSolveBtn.classList.remove('active');
         renderSetup();
     } else {
         setupView.classList.add('hidden');
         puzzleView.classList.remove('hidden');
         showSetupBtn.classList.remove('active');
-        showPuzzleBtn.classList.add('active');
+        showSolveBtn.classList.add('active');
         renderPuzzle();
     }
     saveState();
@@ -124,10 +122,7 @@ function renderPuzzle() {
         const tr = document.createElement('tr');
         tr.className = 'zebra-stripe';
         
-        const labelTd = document.createElement('td');
-        labelTd.className = 'category-label';
-        labelTd.textContent = cat.name || `Category ${catIdx + 1}`;
-        tr.appendChild(labelTd);
+        // Category Label removed as per request
 
         for (let houseIdx = 0; houseIdx < MAX_HOUSES; houseIdx++) {
             const td = document.createElement('td');
@@ -169,8 +164,8 @@ function renderPuzzle() {
 loadState();
 
 showSetupBtn.onclick = () => switchView('setup');
-showPuzzleBtn.onclick = () => switchView('puzzle');
-saveSetupBtn.onclick = () => switchView('puzzle');
+showSolveBtn.onclick = () => switchView('solve');
+saveSetupBtn.onclick = () => switchView('solve');
 
 notesArea.value = state.notes;
 notesArea.oninput = (e) => {
