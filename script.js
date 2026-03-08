@@ -84,19 +84,10 @@ function renderSetup() {
         
         const label = document.createElement('label');
         label.textContent = `Category ${catIdx + 1}:`;
-        label.style.fontSize = '0.8rem';
+        label.style.fontWeight = 'bold';
         label.style.display = 'block';
+        label.style.marginBottom = '8px';
         block.appendChild(label);
-
-        const nameInput = document.createElement('input');
-        nameInput.className = 'cat-name-input';
-        nameInput.value = cat.name;
-        nameInput.placeholder = `Category name...`;
-        nameInput.oninput = (e) => {
-            state.categories[catIdx].name = e.target.value;
-            saveState();
-        };
-        block.appendChild(nameInput);
 
         for (let i = 0; i < MAX_VALUES; i++) {
             const valInput = document.createElement('input');
