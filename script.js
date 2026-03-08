@@ -258,8 +258,21 @@ function renderSolveClues() {
     state.clues.forEach(clue => {
         const div = document.createElement('div');
         div.className = 'solve-clue-item';
-        div.textContent = clue.text;
-        if (checkClueSatisfied(clue)) {
+        
+        const isSatisfied = checkClueSatisfied(clue);
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'clue-checkbox';
+        checkbox.checked = isSatisfied;
+        checkbox.disabled = true; // Not user-interactable
+        div.appendChild(checkbox);
+
+        const textSpan = document.createElement('span');
+        textSpan.textContent = clue.text;
+        div.appendChild(textSpan);
+
+        if (isSatisfied) {
             div.classList.add('clue-satisfied');
         }
         solveCluesDisplay.appendChild(div);

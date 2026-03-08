@@ -141,6 +141,15 @@ h1 {
     border-bottom: 1px solid #eee;
     font-size: 0.9rem;
     transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.clue-checkbox {
+    width: 16px;
+    height: 16px;
+    cursor: default;
 }
 
 .solve-clue-item.clue-satisfied {
