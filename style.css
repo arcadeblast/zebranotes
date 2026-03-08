@@ -190,6 +190,16 @@ button {
     color: white;
 }
 
+.secondary-btn {
+    background: var(--accent-blue);
+    color: white;
+    margin-right: 8px;
+}
+
+#redo-btn {
+    margin-right: auto;
+}
+
 #reset-btn {
     background: var(--accent-red);
     color: white;

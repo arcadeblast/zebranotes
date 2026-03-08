@@ -10,32 +10,39 @@ let state = {
         { name: 'Beverage', values: ['Coffee', 'Tea', 'Milk', 'Orange Juice', 'Water'] },
         { name: 'Smoke', values: ['Old Gold', 'Kools', 'Chesterfields', 'Lucky Strike', 'Parliaments'] },
         { name: 'Pet', values: ['Dog', 'Snails', 'Fox', 'Horse', 'Zebra'] },
-        { name: '', values: ['', '', '', '', ''] } // 6th optional category
+        { name: '', values: ['', '', '', '', ''] }
     ],
-    // puzzleGrid[catIndex][houseIndex] = Array of eliminated value indices
     puzzleGrid: Array(MAX_CATEGORIES).fill(0).map(() => Array(MAX_HOUSES).fill(0).map(() => [])),
     notes: '',
-    currentView: 'setup' 
+    currentView: 'setup',
+    history: [],   // Stack for undo
+    redoStack: []  // Stack for redo
 };
 
 // --- Storage ---
 function loadState() {
-    const saved = localStorage.getItem('zebra-puzzle-state-v2');
+    const saved = localStorage.getItem('zebra-puzzle-state-v4');
     if (saved) {
         state = JSON.parse(saved);
-        // Migration/Fix: ensure we have 6 categories if loading from old state
+        // Ensure 6 categories
         while (state.categories.length < MAX_CATEGORIES) {
             state.categories.push({ name: '', values: Array(MAX_VALUES).fill('') });
         }
-        // Ensure puzzleGrid is sized correctly
-        if (state.puzzleGrid.length < MAX_CATEGORIES) {
-            state.puzzleGrid = Array(MAX_CATEGORIES).fill(0).map(() => Array(MAX_HOUSES).fill(0).map(() => []));
-        }
+        if (!state.redoStack) state.redoStack = [];
     }
 }
 
 function saveState() {
-    localStorage.setItem('zebra-puzzle-state-v2', JSON.stringify(state));
+    // Limit history and redo stacks for storage efficiency
+    if (state.history.length > 50) state.history = state.history.slice(-50);
+    if (state.redoStack.length > 50) state.redoStack = state.redoStack.slice(-50);
+    localStorage.setItem('zebra-puzzle-state-v4', JSON.stringify(state));
+}
+
+function pushToHistory() {
+    const snapshot = JSON.parse(JSON.stringify(state.puzzleGrid));
+    state.history.push(snapshot);
+    state.redoStack = []; // Clear redo stack on new action
 }
 
 // --- DOM Elements ---
@@ -48,6 +55,8 @@ const showSetupBtn = document.getElementById('show-setup');
 const showPuzzleBtn = document.getElementById('show-puzzle');
 const saveSetupBtn = document.getElementById('save-setup');
 const resetBtn = document.getElementById('reset-btn');
+const undoBtn = document.getElementById('undo-btn');
+const redoBtn = document.getElementById('redo-btn');
 
 // --- View Logic ---
 function switchView(viewName) {
@@ -76,29 +85,20 @@ function renderSetup() {
         block.className = 'category-setup-block';
         
         const label = document.createElement('label');
-        label.textContent = `Category ${catIdx + 1} Name:`;
+        label.textContent = `Category ${catIdx + 1}:`;
         label.style.fontSize = '0.8rem';
         label.style.display = 'block';
-        label.style.marginBottom = '4px';
         block.appendChild(label);
 
         const nameInput = document.createElement('input');
         nameInput.className = 'cat-name-input';
         nameInput.value = cat.name;
-        nameInput.placeholder = `e.g. Color...`;
+        nameInput.placeholder = `Category name...`;
         nameInput.oninput = (e) => {
             state.categories[catIdx].name = e.target.value;
             saveState();
         };
         block.appendChild(nameInput);
-
-        const valuesLabel = document.createElement('label');
-        valuesLabel.textContent = `Possible Values:`;
-        valuesLabel.style.fontSize = '0.7rem';
-        valuesLabel.style.display = 'block';
-        valuesLabel.style.marginTop = '10px';
-        valuesLabel.style.marginBottom = '4px';
-        block.appendChild(valuesLabel);
 
         for (let i = 0; i < MAX_VALUES; i++) {
             const valInput = document.createElement('input');
@@ -117,7 +117,6 @@ function renderSetup() {
 // --- Puzzle Logic ---
 function renderPuzzle() {
     gridBody.innerHTML = '';
-    // Only render categories that have a name or at least one value
     state.categories.forEach((cat, catIdx) => {
         const hasContent = cat.name || cat.values.some(v => v.trim() !== '');
         if (!hasContent) return;
@@ -145,6 +144,7 @@ function renderPuzzle() {
                 if (isEliminated) span.classList.add('eliminated');
 
                 span.onclick = () => {
+                    pushToHistory();
                     const elimList = state.puzzleGrid[catIdx][houseIdx];
                     if (elimList.includes(valIdx)) {
                         state.puzzleGrid[catIdx][houseIdx] = elimList.filter(idx => idx !== valIdx);
@@ -179,7 +179,8 @@ notesArea.oninput = (e) => {
 };
 
 resetBtn.onclick = () => {
-    if (confirm('Clear all progress? (Categories will be kept, but grid and notes will be wiped)')) {
+    if (confirm('Clear all progress?')) {
+        pushToHistory();
         state.puzzleGrid = Array(MAX_CATEGORIES).fill(0).map(() => Array(MAX_HOUSES).fill(0).map(() => []));
         state.notes = '';
         notesArea.value = '';
@@ -188,5 +189,22 @@ resetBtn.onclick = () => {
     }
 };
 
-// Initial view
+undoBtn.onclick = () => {
+    if (state.history.length > 0) {
+        state.redoStack.push(JSON.parse(JSON.stringify(state.puzzleGrid)));
+        state.puzzleGrid = state.history.pop();
+        saveState();
+        renderPuzzle();
+    }
+};
+
+redoBtn.onclick = () => {
+    if (state.redoStack.length > 0) {
+        state.history.push(JSON.parse(JSON.stringify(state.puzzleGrid)));
+        state.puzzleGrid = state.redoStack.pop();
+        saveState();
+        renderPuzzle();
+    }
+};
+
 switchView(state.currentView);
