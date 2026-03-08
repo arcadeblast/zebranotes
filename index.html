@@ -12,28 +12,62 @@
             <h1>Zebra Notes</h1>
             <nav class="view-switch">
                 <button id="show-setup">Setup</button>
+                <button id="show-clues">Clues</button>
                 <button id="show-solve">Solve</button>
             </nav>
         </header>
 
         <!-- SETUP VIEW -->
         <main id="setup-view" class="view">
-            <section class="setup-instructions">
-                <h2>Configure your Puzzle</h2>
-                <p>Enter 5 categories and their 5 possible values each.</p>
-            </section>
-            
             <div id="category-inputs-container">
                 <!-- Category blocks will be injected here -->
             </div>
-
             <div class="controls setup-controls">
-                <button id="save-setup" class="primary-btn">Start Solving</button>
+                <button id="save-setup" class="primary-btn">Next: Clues</button>
             </div>
         </main>
 
-        <!-- PUZZLE VIEW -->
-        <main id="puzzle-view" class="view hidden">
+        <!-- CLUES VIEW -->
+        <main id="clues-view" class="view hidden">
+            <section class="clue-builder">
+                <h3>Clue Builder</h3>
+                <div class="clue-row">
+                    <select id="rel-select">
+                        <option value="same">Goes with / Same house</option>
+                        <option value="next">Next to</option>
+                        <option value="left-of">Immediately to the left of</option>
+                        <option value="right-of">Immediately to the right of</option>
+                        <option value="between">Is between</option>
+                        <option value="position">Is in House #</option>
+                        <option value="left-end">Is at the left end</option>
+                        <option value="right-end">Is at the right end</option>
+                        <option value="ends">Is at one of the ends</option>
+                    </select>
+                </div>
+                
+                <div id="item-selects" class="clue-row">
+                    <!-- Dropdowns for items will be injected here -->
+                </div>
+
+                <div class="clue-row">
+                    <button id="add-clue-btn" class="primary-btn">Add Clue</button>
+                </div>
+            </section>
+
+            <section class="clues-list-section">
+                <h3>Active Clues</h3>
+                <ul id="clues-list">
+                    <!-- Clues will be listed here -->
+                </ul>
+            </section>
+
+            <div class="controls">
+                <button id="start-solving-btn" class="primary-btn">Start Solving</button>
+            </div>
+        </main>
+
+        <!-- SOLVE VIEW -->
+        <main id="solve-view" class="view hidden">
             <div class="puzzle-grid-wrapper">
                 <table class="puzzle-grid">
                     <tbody id="grid-body">
@@ -43,8 +77,10 @@
             </div>
 
             <section class="notes-section">
-                <label class="notes-label">Clues and Notes</label>
-                <textarea id="notes-area" placeholder="Type your clues and notes here..."></textarea>
+                <label class="notes-label">Active Clues</label>
+                <div id="solve-clues-display" class="solve-clues-container">
+                    <!-- Clues will be shown here for reference -->
+                </div>
             </section>
 
             <div class="controls">

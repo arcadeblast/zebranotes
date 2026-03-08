@@ -65,6 +65,79 @@ h1 {
     display: none;
 }
 
+/* CLUE BUILDER STYLES */
+.clue-builder {
+    background: white;
+    padding: 1rem;
+    border: 2px solid var(--zebra-black);
+    margin-bottom: 1rem;
+}
+
+.clue-row {
+    margin-bottom: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.clue-row select {
+    padding: 0.6rem;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    flex: 1;
+    min-width: 200px;
+}
+
+.clues-list-section {
+    background: white;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    margin-bottom: 1rem;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+#clues-list {
+    list-style: none;
+    padding: 0;
+}
+
+#clues-list li {
+    padding: 0.5rem;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.del-clue {
+    background: var(--accent-red);
+    color: white;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.7rem;
+}
+
+/* SOLVE CLUES DISPLAY */
+.solve-clues-container {
+    background: white;
+    padding: 1rem;
+    border: 2px solid var(--zebra-black);
+    margin-top: 0.5rem;
+    min-height: 100px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.solve-clue-item {
+    padding: 0.5rem;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
+}
+
+.solve-clue-item:last-child {
+    border-bottom: none;
+}
+
 /* SETUP STYLES */
 #category-inputs-container {
     display: grid;
@@ -88,11 +161,6 @@ h1 {
     font-size: 1rem;
 }
 
-.cat-name-input {
-    font-weight: bold;
-    border-bottom: 2px solid var(--zebra-black) !important;
-}
-
 /* PUZZLE STYLES */
 .puzzle-grid-wrapper {
     width: 100%;
@@ -109,7 +177,7 @@ h1 {
 
 .puzzle-grid td {
     border: 1px solid #ddd;
-    padding: 10px 2px; /* Breathing room between rows */
+    padding: 10px 2px;
     text-align: center;
     vertical-align: top;
     word-wrap: break-word;
@@ -117,11 +185,7 @@ h1 {
 }
 
 .zebra-stripe:nth-child(even) {
-    background-color: #fcfcfc; /* Very subtle stripe */
-}
-
-.zebra-stripe {
-    border-bottom: 1px solid #eee;
+    background-color: #fcfcfc;
 }
 
 .candidates-container {
@@ -151,7 +215,7 @@ h1 {
 }
 
 .candidate.confirmed {
-    background: #e8f5e9; /* Soft, non-obnoxious green */
+    background: #e8f5e9;
     border-color: #a5d6a7;
     font-weight: bold;
     color: #2e7d32;
